@@ -1,0 +1,43 @@
+name: Build with Project Script
+
+on:
+  push:
+    tags:
+      - 'v*' # 推送 v1.0 等标签时触发
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取所有历史，方便脚本提取版本号
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          check-latest: true
+
+      - name: Run Build Script
+        run: |
+          chmod +x ./build-release.sh
+          # 执行原项目的构建脚本
+          ./build-release.sh
+        
+      - name: Check Artifacts
+        run: |
+          echo "检查生成的二进制文件："
+          ls -R # 确认脚本生成的压缩包路径（通常在项目根目录或 build/ 文件夹下）
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          # 自动上传所有 .tar.gz 或 .zip 后缀的构建产物
+          files: |
+            *.tar.gz
+            *.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
