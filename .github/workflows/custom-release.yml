@@ -37,6 +37,12 @@ jobs:
         with:
           # 自动上传所有 .tar.gz 或 .zip 后缀的构建产物
           files: |
+            build/*.tar.gz
+            build/*.zip
+            dist/*.tar.gz
+            release/*.tar.gz
+            .bin/*.tar.gz
+            .bin/*.zip
             *.tar.gz
             *.zip
         env:
